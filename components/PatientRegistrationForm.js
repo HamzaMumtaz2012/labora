@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import RegistrationForm, { Field, FormSection } from './RegistrationForm';
 
 const fieldsToSend = [
@@ -17,8 +17,45 @@ const fieldsToSend = [
   'status',
 ];
 
-export default function PatientRegistrationForm({ tests, testsError }) {
+export default function PatientRegistrationForm() {
+  const [tests, setTests] = useState([]);
+  const [testsError, setTestsError] = useState('');
+  const [isLoadingTests, setIsLoadingTests] = useState(true);
   const [selectedTest, setSelectedTest] = useState(null);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function loadTests() {
+      try {
+        const response = await fetch('/api/tests');
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Could not load tests.');
+        }
+
+        if (isCurrent) {
+          setTests(result.tests);
+        }
+      } catch (error) {
+        if (isCurrent) {
+          setTestsError(
+            error instanceof Error
+              ? error.message
+              : 'Could not load tests from the database.'
+          );
+        }
+      } finally {
+        if (isCurrent) setIsLoadingTests(false);
+      }
+    }
+
+    loadTests();
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   function selectTest(event) {
     const test = tests.find((item) => item.testName === event.target.value);
@@ -48,8 +85,15 @@ export default function PatientRegistrationForm({ tests, testsError }) {
           name="service"
           options={tests.map((test) => test.testName)}
           onChange={selectTest}
-          disabled={tests.length === 0}
-          helper={testsError || (tests.length === 0 ? 'No tests found in the Labora.Tests collection.' : '')}
+          disabled={isLoadingTests || tests.length === 0}
+          helper={
+            testsError ||
+            (isLoadingTests
+              ? 'Loading tests...'
+              : tests.length === 0
+                ? 'No tests found in the Labora.Tests collection.'
+                : '')
+          }
         />
         <Field label="Test code" name="testCode" value={selectedTest?.testCode ?? ''} readOnly />
         <Field label="Doctor name" name="doctorDisplay" value={selectedTest?.doctorName ?? ''} disabled />
