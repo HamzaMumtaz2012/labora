@@ -53,7 +53,7 @@ export default function RegistrationForm({ children, saveLabel, apiEndpoint, fie
 
       router.push('/');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not reach the server. Please try again.');
+      setMessage(error instanceof Error ? error.message : 'Could not reach the server. Please try again.' , error);
       setMessageType('error');
     } finally {
       setIsSaving(false);
