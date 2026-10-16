@@ -26,36 +26,28 @@ export default function PatientRegistrationForm() {
   useEffect(() => {
     let isCurrent = true;
 
-    async function loadTests() {
-      try {
-        const response = await fetch('/api/tests');
-        const result = await response.json();
-        console.log(result)
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Could not load tests.');
+    return async function() {
+    try {
+        let t = await fetch("/api/tests");
+        
+        // Check if the response is actually JSON before parsing
+        const contentType = t.headers.get("content-type");
+        if (!t.ok || !contentType || !contentType.includes("application/json")) {
+            const errorText = await t.text(); // Get raw text from the 502 error
+            throw Error(`Server Error (${t.status}): ${errorText || "Invalid response"}`);
         }
 
-        if (isCurrent) {
-          setTests(result.tests);
-        }
-      } catch (error) {
-        if (isCurrent) {
-          setTestsError(
-            error instanceof Error
-              ? error.message
-              : 'Could not load tests from the database.'
-          );
-        }
-      } finally {
-        if (isCurrent) setIsLoadingTests(false);
-      }
+        let a = await t.json();
+        e && l(a.tests);
+    } catch (t) {
+        e && n(t instanceof Error ? t.message : "Could not load tests.");
+    } finally {
+        e && o(!1);
     }
+}();
 
-    loadTests();
-    return () => {
-      isCurrent = false;
-    };
+  
+   
   }, []);
 
   function selectTest(event) {
