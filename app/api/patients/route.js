@@ -110,12 +110,12 @@ export async function POST(request) {
   } catch (error) {
     console.error('Failed to save patient:', error);
     const isConfigurationError =
-      error instanceof Error && error.message.startsWith('Missing mongoDbUri');
+      error instanceof Error && error.message.startsWith('Missing MONGODB_URI');
 
     return Response.json(
       {
         error: isConfigurationError
-          ? 'Patient database is not configured. Set mongoDbUri in .env.local and restart the server.'
+          ? 'Patient database is not configured. Set MONGODB_URI in .env.local and restart the server.'
           : 'Could not save patient. Check the server’s MongoDB connection and try again.',
       },
       { status: isConfigurationError ? 503 : 500 }
