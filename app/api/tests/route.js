@@ -25,7 +25,7 @@ export async function GET() {
   } catch (error) {
     console.error('Failed to load tests:', error);
     const isConfigurationError =
-      error instanceof Error && error.message.startsWith('Missing MONGODB_URI');
+      error instanceof Error && error.message.startsWith('Missing mongoDbUri');
 
     return Response.json(
       {
